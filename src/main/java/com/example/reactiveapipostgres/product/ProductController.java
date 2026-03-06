@@ -1,0 +1,61 @@
+package com.example.reactiveapipostgres.product;
+
+import org.springframework.http.HttpStatus;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseStatus;
+import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.server.ResponseStatusException;
+import reactor.core.publisher.Flux;
+import reactor.core.publisher.Mono;
+
+@RestController
+@RequestMapping("/api/products")
+public class ProductController {
+
+    private final ProductService service;
+
+    public ProductController(ProductService service) {
+        this.service = service;
+    }
+
+    @GetMapping
+    public Flux<Product> findAll() {
+        return service.findAll();
+    }
+
+    @GetMapping("/{id}")
+    public Mono<Product> findById(@PathVariable Long id) {
+        return service.findById(id)
+                .switchIfEmpty(Mono.error(new ResponseStatusException(HttpStatus.NOT_FOUND, "Product not found")));
+    }
+
+    @GetMapping("/search")
+    public Flux<Product> searchByName(@RequestParam String name) {
+        return service.searchByName(name);
+    }
+
+    @PostMapping
+    @ResponseStatus(HttpStatus.CREATED)
+    public Mono<Product> create(@RequestBody Product product) {
+        return service.create(product);
+    }
+
+    @PutMapping("/{id}")
+    public Mono<Product> update(@PathVariable Long id, @RequestBody Product product) {
+        return service.update(id, product)
+                .switchIfEmpty(Mono.error(new ResponseStatusException(HttpStatus.NOT_FOUND, "Product not found")));
+    }
+
+    @DeleteMapping("/{id}")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public Mono<Void> delete(@PathVariable Long id) {
+        return service.delete(id);
+    }
+}

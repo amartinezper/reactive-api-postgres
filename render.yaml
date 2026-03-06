@@ -1,0 +1,16 @@
+services:
+  - type: web
+    name: reactive-api-postgres
+    runtime: docker
+    plan: free
+    autoDeploy: true
+    dockerfilePath: ./Dockerfile
+    envVars:
+      - key: SPRING_R2DBC_URL
+        sync: false
+      - key: SPRING_R2DBC_USERNAME
+        sync: false
+      - key: SPRING_R2DBC_PASSWORD
+        sync: false
+      - key: JAVA_TOOL_OPTIONS
+        value: -Xms128m -Xmx256m
