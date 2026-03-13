@@ -1,0 +1,52 @@
+{
+  "family": "reactive-api-postgres",
+  "networkMode": "awsvpc",
+  "requiresCompatibilities": ["FARGATE"],
+  "cpu": "512",
+  "memory": "1024",
+  "executionRoleArn": "arn:aws:iam::<AWS_ACCOUNT_ID>:role/ecsTaskExecutionRole",
+  "containerDefinitions": [
+    {
+      "name": "reactive-api",
+      "image": "<AWS_ACCOUNT_ID>.dkr.ecr.<AWS_REGION>.amazonaws.com/reactive-api-postgres:latest",
+      "essential": true,
+      "portMappings": [
+        {
+          "containerPort": 8080,
+          "hostPort": 8080,
+          "protocol": "tcp"
+        }
+      ],
+      "environment": [
+        {
+          "name": "PORT",
+          "value": "8080"
+        },
+        {
+          "name": "SPRING_R2DBC_URL",
+          "value": "r2dbc:postgresql://<RDS_ENDPOINT>:5432/reactive_db"
+        },
+        {
+          "name": "SPRING_R2DBC_USERNAME",
+          "value": "<DB_USER>"
+        },
+        {
+          "name": "SPRING_R2DBC_PASSWORD",
+          "value": "<DB_PASSWORD>"
+        },
+        {
+          "name": "JAVA_TOOL_OPTIONS",
+          "value": "-Xms256m -Xmx512m"
+        }
+      ],
+      "logConfiguration": {
+        "logDriver": "awslogs",
+        "options": {
+          "awslogs-group": "/ecs/reactive-api-postgres",
+          "awslogs-region": "<AWS_REGION>",
+          "awslogs-stream-prefix": "ecs"
+        }
+      }
+    }
+  ]
+}
